@@ -1,0 +1,47 @@
+name: Generate Architecture Diagrams
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**/*.cml' # Workflow chỉ chạy khi có sự thay đổi ở file kiến trúc
+
+jobs:
+  generate-diagrams:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Download Context Mapper CLI
+        run: |
+          # Tải bản phát hành CLI mới nhất từ GitHub của Context Mapper
+          wget https://github.com/ContextMapper/context-mapper-cli/releases/latest/download/context-mapper-cli.tar -O cm-cli.tar
+          tar -xf cm-cli.tar
+          chmod +x ./cm
+
+      - name: Generate Diagrams
+        run: |
+          mkdir -p docs/diagrams
+          
+          # 1. Tự động sinh các sơ đồ class, component bằng PlantUML
+          ./cm generate -i architecture.cml -g plantuml -o docs/diagrams
+          
+          # 2. Tự động sinh sơ đồ Context Map đồ họa (Graphviz)
+          ./cm generate -i architecture.cml -g context-map -o docs/diagrams
+
+      - name: Commit and Push changes
+        run: |
+          # Commit các file ảnh/PlantUML sinh ra ngược lại vào repository
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/diagrams/
+          git commit -m "docs: auto-generate architecture diagrams from CML" || echo "No changes to commit"
+          git push
