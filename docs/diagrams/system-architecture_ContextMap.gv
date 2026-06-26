@@ -1,13 +1,65 @@
 digraph "ContextMapGraph" {
 graph ["imagepath"="/tmp/GraphvizJava"]
-"CustomerSupportService" ["margin"="0.3","orientation"="30","shape"="egg","fontsize"="16","style"="bold","label"="CustomerSupportService\n","fontname"="sans-serif"]
-"InventoryService" ["margin"="0.3","orientation"="125","shape"="egg","fontsize"="16","style"="bold","label"="InventoryService\n","fontname"="sans-serif"]
-"NotificationService" ["margin"="0.3","orientation"="140","shape"="egg","fontsize"="16","style"="bold","label"="NotificationService\n","fontname"="sans-serif"]
-"OrderProcessingService" ["margin"="0.3","orientation"="132","shape"="egg","fontsize"="16","style"="bold","label"="OrderProcessingService\n","fontname"="sans-serif"]
-"PaymentGatewayService" ["margin"="0.3","orientation"="32","shape"="egg","fontsize"="16","style"="bold","label"="PaymentGatewayService\n","fontname"="sans-serif"]
-"ProductCatalogService" ["margin"="0.3","orientation"="55","shape"="egg","fontsize"="16","style"="bold","label"="ProductCatalogService\n","fontname"="sans-serif"]
-"RecommendationService" ["margin"="0.3","orientation"="297","shape"="egg","fontsize"="16","style"="bold","label"="RecommendationService\n","fontname"="sans-serif"]
-"ReviewAndRatingService" ["margin"="0.3","orientation"="87","shape"="egg","fontsize"="16","style"="bold","label"="ReviewAndRatingService\n","fontname"="sans-serif"]
-"ShippingService" ["margin"="0.3","orientation"="220","shape"="egg","fontsize"="16","style"="bold","label"="ShippingService\n","fontname"="sans-serif"]
-"UserManagementService" ["margin"="0.3","orientation"="220","shape"="egg","fontsize"="16","style"="bold","label"="UserManagementService\n","fontname"="sans-serif"]
+"AuthContext" ["margin"="0.3","orientation"="147","shape"="egg","fontsize"="16","style"="bold","label"="AuthContext\n","fontname"="sans-serif"]
+"ConversationContext" ["margin"="0.3","orientation"="295","shape"="egg","fontsize"="16","style"="bold","label"="ConversationContext\n","fontname"="sans-serif"]
+"ChatbotAndVoiceContext" ["margin"="0.3","orientation"="108","shape"="egg","fontsize"="16","style"="bold","label"="ChatbotAndVoiceContext\n","fontname"="sans-serif"]
+"LiveKitServer" ["margin"="0.3","orientation"="224","shape"="egg","fontsize"="16","style"="bold","label"="LiveKitServer\n","fontname"="sans-serif"]
+"PaymentContext" ["margin"="0.3","orientation"="171","shape"="egg","fontsize"="16","style"="bold","label"="PaymentContext\n","fontname"="sans-serif"]
+"DocumentContext" ["margin"="0.3","orientation"="317","shape"="egg","fontsize"="16","style"="bold","label"="DocumentContext\n","fontname"="sans-serif"]
+"LawContext" ["margin"="0.3","orientation"="72","shape"="egg","fontsize"="16","style"="bold","label"="LawContext\n","fontname"="sans-serif"]
+"PaymentGateways" ["margin"="0.3","orientation"="337","shape"="egg","fontsize"="16","style"="bold","label"="PaymentGateways\n","fontname"="sans-serif"]
+"PersonaContext" ["margin"="0.3","orientation"="346","shape"="egg","fontsize"="16","style"="bold","label"="PersonaContext\n","fontname"="sans-serif"]
+"SettingContext" ["margin"="0.3","orientation"="77","shape"="egg","fontsize"="16","style"="bold","label"="SettingContext\n","fontname"="sans-serif"]
+"AuthContext" -> "ConversationContext" ["headlabel"=<<table cellspacing="0" cellborder="1" border="0">
+<tr><td bgcolor="white" sides="r">D</td><td sides="trbl" bgcolor="white"><font>ACL</font></td></tr>
+</table>>,"labeldistance"="0","fontsize"="12","taillabel"=<<table cellspacing="0" cellborder="1" border="0">
+<tr><td bgcolor="white" sides="r">U</td><td sides="trbl" bgcolor="white"><font>OHS, PL</font></td></tr>
+</table>>,"style"="bold","label"="                                        ","dir"="none","fontname"="sans-serif"]
+"AuthContext" -> "PaymentContext" ["headlabel"=<<table cellspacing="0" cellborder="1" border="0">
+<tr><td bgcolor="white" sides="r">D</td><td sides="trbl" bgcolor="white"><font>ACL</font></td></tr>
+</table>>,"labeldistance"="0","fontsize"="12","taillabel"=<<table cellspacing="0" cellborder="1" border="0">
+<tr><td bgcolor="white" sides="r">U</td><td sides="trbl" bgcolor="white"><font>OHS, PL</font></td></tr>
+</table>>,"style"="bold","label"="                                        ","dir"="none","fontname"="sans-serif"]
+"ConversationContext" -> "ChatbotAndVoiceContext" ["fontsize"="12","style"="bold","label"="Partnership","dir"="none","fontname"="sans-serif"]
+"ConversationContext" -> "LiveKitServer" ["headlabel"=<<table cellspacing="0" cellborder="1" border="0">
+<tr><td bgcolor="white" sides="r">D</td><td sides="trbl" bgcolor="white"><font>CF</font></td></tr>
+</table>>,"labeldistance"="0","fontsize"="12","taillabel"=<<table cellspacing="0" cellborder="0" border="0">
+<tr><td bgcolor="white">U</td></tr>
+</table>>,"style"="bold","label"="                                        ","dir"="none","fontname"="sans-serif"]
+"LiveKitServer" -> "ChatbotAndVoiceContext" ["headlabel"=<<table cellspacing="0" cellborder="1" border="0">
+<tr><td bgcolor="white" sides="r">D</td><td sides="trbl" bgcolor="white"><font>CF</font></td></tr>
+</table>>,"labeldistance"="0","fontsize"="12","taillabel"=<<table cellspacing="0" cellborder="0" border="0">
+<tr><td bgcolor="white">U</td></tr>
+</table>>,"style"="bold","label"="                                        ","dir"="none","fontname"="sans-serif"]
+"PaymentContext" -> "DocumentContext" ["headlabel"=<<table cellspacing="0" cellborder="1" border="0">
+<tr><td bgcolor="white" sides="r">D</td><td sides="trbl" bgcolor="white"><font>ACL</font></td></tr>
+</table>>,"labeldistance"="0","fontsize"="12","taillabel"=<<table cellspacing="0" cellborder="0" border="0">
+<tr><td bgcolor="white">U</td></tr>
+</table>>,"style"="bold","label"="                                        ","dir"="none","fontname"="sans-serif"]
+"PaymentContext" -> "ConversationContext" ["headlabel"=<<table cellspacing="0" cellborder="1" border="0">
+<tr><td bgcolor="white" sides="r">D</td><td sides="trbl" bgcolor="white"><font>ACL</font></td></tr>
+</table>>,"labeldistance"="0","fontsize"="12","taillabel"=<<table cellspacing="0" cellborder="0" border="0">
+<tr><td bgcolor="white">U</td></tr>
+</table>>,"style"="bold","label"="                                        ","dir"="none","fontname"="sans-serif"]
+"DocumentContext" -> "ChatbotAndVoiceContext" ["fontsize"="12","style"="bold","label"="Shared Kernel","dir"="none","fontname"="sans-serif"]
+"LawContext" -> "ChatbotAndVoiceContext" ["headlabel"=<<table cellspacing="0" cellborder="1" border="0">
+<tr><td bgcolor="white" sides="r">D</td><td sides="trbl" bgcolor="white"><font>ACL</font></td></tr>
+</table>>,"labeldistance"="0","fontsize"="12","taillabel"=<<table cellspacing="0" cellborder="0" border="0">
+<tr><td bgcolor="white">U</td></tr>
+</table>>,"style"="bold","label"="                                        ","dir"="none","fontname"="sans-serif"]
+"PaymentGateways" -> "PaymentContext" ["headlabel"=<<table cellspacing="0" cellborder="1" border="0">
+<tr><td bgcolor="white" sides="r">D</td><td sides="trbl" bgcolor="white"><font>ACL</font></td></tr>
+</table>>,"labeldistance"="0","fontsize"="12","taillabel"=<<table cellspacing="0" cellborder="0" border="0">
+<tr><td bgcolor="white">U</td></tr>
+</table>>,"style"="bold","label"="                                        ","dir"="none","fontname"="sans-serif"]
+"PersonaContext" -> "ChatbotAndVoiceContext" ["headlabel"=<<table cellspacing="0" cellborder="1" border="0">
+<tr><td bgcolor="white" sides="r">D</td><td sides="trbl" bgcolor="white"><font>ACL</font></td></tr>
+</table>>,"labeldistance"="0","fontsize"="12","taillabel"=<<table cellspacing="0" cellborder="1" border="0">
+<tr><td bgcolor="white" sides="r">U</td><td sides="trbl" bgcolor="white"><font>OHS, PL</font></td></tr>
+</table>>,"style"="bold","label"="                                        ","dir"="none","fontname"="sans-serif"]
+"SettingContext" -> "ConversationContext" ["headlabel"=<<table cellspacing="0" cellborder="1" border="0">
+<tr><td bgcolor="white" sides="r">D</td><td sides="trbl" bgcolor="white"><font>CF</font></td></tr>
+</table>>,"labeldistance"="0","fontsize"="12","taillabel"=<<table cellspacing="0" cellborder="1" border="0">
+<tr><td bgcolor="white" sides="r">U</td><td sides="trbl" bgcolor="white"><font>OHS, PL</font></td></tr>
+</table>>,"style"="bold","label"="                                        ","dir"="none","fontname"="sans-serif"]
 }
