@@ -28,24 +28,25 @@ jobs:
         run: |
           echo "🚀 Tải Context Mapper CLI v6.12.0 từ Maven Central..."
           wget -q https://repo1.maven.org/maven2/org/contextmapper/context-mapper-cli/6.12.0/context-mapper-cli-6.12.0.tar -O cm-cli.tar
-          
           echo "📦 Giải nén file tar..."
           tar -xf cm-cli.tar
-          
           echo "🔗 Thiết lập quyền thực thi..."
           chmod +x context-mapper-cli-6.12.0/bin/cm
-          
-          # Tạo lối tắt ra bên ngoài thư mục gốc
           ln -s "$PWD/context-mapper-cli-6.12.0/bin/cm" ./cm
-          
           echo "✅ Cài đặt thành công!"
           ./cm --version || echo "Sẵn sàng chạy!"
+
+      # THÊM BƯỚC NÀY: Cài đặt Graphviz cho máy ảo Ubuntu
+      - name: Install Graphviz
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y graphviz
 
       - name: Generate Diagrams
         run: |
           mkdir -p docs/diagrams
           
-          # SỬA LỖI TÊN FILE: Sử dụng chính xác file system-architecture.cml
+          # Sinh sơ đồ PlantUML và Context Map
           ./cm generate -i system-architecture.cml -g plantuml -o docs/diagrams
           ./cm generate -i system-architecture.cml -g context-map -o docs/diagrams
 
