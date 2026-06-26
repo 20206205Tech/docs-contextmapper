@@ -5,7 +5,7 @@ on:
     branches:
       - main
     # paths:
-    #   - '**/*.cml' # Workflow chỉ chạy khi có sự thay đổi ở file kiến trúc
+    #   - '**/*.cml'
 
 jobs:
   generate-diagrams:
@@ -14,58 +14,24 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-      - name: Download Context Mapper CLI   
-        run: |
-          echo "🚀 Đang tải mã nguồn Context Mapper CLI v6.11.0..."
-          wget -q https://github.com/ContextMapper/context-mapper-cli/archive/refs/tags/v6.11.0.tar.gz -O cm-source.tar.gz
-          
-          echo "📦 Đang giải nén..."
-          tar -xzf cm-source.tar.gz
-          
-          echo "⚙️ Đang biên dịch công cụ (bỏ qua test để tăng tốc)..."
-          # Khi giải nén, thư mục tự động sinh ra sẽ có tên là context-mapper-cli-6.11.0
-          cd context-mapper-cli-6.11.0
-          ./gradlew installDist -x test --no-daemon
-          
-          echo "🔗 Đang thiết lập quyền thực thi..."
-          # Tìm file chạy 'cm' vừa được Gradle sinh ra
-          CM_EXEC=$(find build/install -type f -name "cm" | head -n 1)
-          
-          if [ -z "$CM_EXEC" ]; then
-            echo "❌ LỖI: Không tìm thấy file thực thi sau khi biên dịch."
-            exit 1
-          fi
-          
-          chmod +x "$CM_EXEC"
-          
-          # Tạo lối tắt (symlink) ra ngoài thư mục gốc của GitHub Workspace
-          ln -s "$PWD/$CM_EXEC" "$GITHUB_WORKSPACE/cm"
-          
-          echo "✅ Cài đặt thành công!"
-          
-          # Quay lại thư mục gốc để chạy thử
-          cd "$GITHUB_WORKSPACE"
-          ./cm --version || echo "Sẵn sàng chạy lệnh cm"
-      - name: Generate Diagrams
+      # KHÔNG cần setup Java, KHÔNG cần tải file, KHÔNG cần build mã nguồn.
+      - name: Generate Diagrams via Docker
         run: |
           mkdir -p docs/diagrams
           
-          # 1. Tự động sinh các sơ đồ class, component bằng PlantUML
-          ./cm generate -i architecture.cml -g plantuml -o docs/diagrams
-          
-          # 2. Tự động sinh sơ đồ Context Map đồ họa (Graphviz)
-          ./cm generate -i architecture.cml -g context-map -o docs/diagrams
+          # 1. Vẽ sơ đồ PlantUML
+          # Lệnh này gọi container, gắn (mount) thư mục code hiện tại vào /workspace bên trong container
+          docker run --rm -v ${{ github.workspace }}:/workspace contextmapper/context-mapper-cli \
+            generate -i /workspace/architecture.cml -g plantuml -o /workspace/docs/diagrams
+            
+          # 2. Vẽ sơ đồ Context Map đồ họa
+          docker run --rm -v ${{ github.workspace }}:/workspace contextmapper/context-mapper-cli \
+            generate -i /workspace/architecture.cml -g context-map -o /workspace/docs/diagrams
 
       - name: Commit and Push changes
         run: |
-          # Commit các file ảnh/PlantUML sinh ra ngược lại vào repository
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add docs/diagrams/
-          git commit -m "docs: auto-generate architecture diagrams from CML" || echo "No changes to commit"
+          git commit -m "docs: auto-generate architecture diagrams via Docker" || echo "No changes to commit"
           git push
