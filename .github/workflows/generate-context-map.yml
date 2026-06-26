@@ -7,6 +7,10 @@ on:
     # paths:
     #   - '**/*.cml'
 
+# SỬA LỖI 403: Cấp quyền Ghi cho GitHub Actions bot để push file vẽ sơ đồ lên repo
+permissions:
+  contents: write
+
 jobs:
   generate-diagrams:
     runs-on: ubuntu-latest
@@ -41,9 +45,9 @@ jobs:
         run: |
           mkdir -p docs/diagrams
           
-          # Sinh sơ đồ PlantUML và Context Map
-          ./cm generate -i architecture.cml -g plantuml -o docs/diagrams
-          ./cm generate -i architecture.cml -g context-map -o docs/diagrams
+          # SỬA LỖI TÊN FILE: Sử dụng chính xác file system-architecture.cml
+          ./cm generate -i system-architecture.cml -g plantuml -o docs/diagrams
+          ./cm generate -i system-architecture.cml -g context-map -o docs/diagrams
 
       - name: Commit and Push changes
         run: |
