@@ -1,0 +1,13 @@
+digraph "ContextMapGraph" {
+graph ["imagepath"="/tmp/GraphvizJava"]
+"CustomerSupportService" ["margin"="0.3","orientation"="30","shape"="egg","fontsize"="16","style"="bold","label"="CustomerSupportService\n","fontname"="sans-serif"]
+"InventoryService" ["margin"="0.3","orientation"="125","shape"="egg","fontsize"="16","style"="bold","label"="InventoryService\n","fontname"="sans-serif"]
+"NotificationService" ["margin"="0.3","orientation"="140","shape"="egg","fontsize"="16","style"="bold","label"="NotificationService\n","fontname"="sans-serif"]
+"OrderProcessingService" ["margin"="0.3","orientation"="132","shape"="egg","fontsize"="16","style"="bold","label"="OrderProcessingService\n","fontname"="sans-serif"]
+"PaymentGatewayService" ["margin"="0.3","orientation"="32","shape"="egg","fontsize"="16","style"="bold","label"="PaymentGatewayService\n","fontname"="sans-serif"]
+"ProductCatalogService" ["margin"="0.3","orientation"="55","shape"="egg","fontsize"="16","style"="bold","label"="ProductCatalogService\n","fontname"="sans-serif"]
+"RecommendationService" ["margin"="0.3","orientation"="297","shape"="egg","fontsize"="16","style"="bold","label"="RecommendationService\n","fontname"="sans-serif"]
+"ReviewAndRatingService" ["margin"="0.3","orientation"="87","shape"="egg","fontsize"="16","style"="bold","label"="ReviewAndRatingService\n","fontname"="sans-serif"]
+"ShippingService" ["margin"="0.3","orientation"="220","shape"="egg","fontsize"="16","style"="bold","label"="ShippingService\n","fontname"="sans-serif"]
+"UserManagementService" ["margin"="0.3","orientation"="220","shape"="egg","fontsize"="16","style"="bold","label"="UserManagementService\n","fontname"="sans-serif"]
+}
