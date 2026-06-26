@@ -17,6 +17,7 @@ ContextMap OnlineLearningMap {
     LearnerContext [U, OHS] -> [D] LearningContext
 }
 
+
 /* 2. Định nghĩa chi tiết các Bounded Context */
 BoundedContext LearnerContext {
     domainVisionStatement = "Quản lý định danh học viên (Learner), hồ sơ và tiến trình cá nhân."
