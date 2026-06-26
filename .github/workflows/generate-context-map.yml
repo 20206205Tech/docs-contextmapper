@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - main
-    paths:
-      - '**/*.cml' # Workflow chỉ chạy khi có sự thay đổi ở file kiến trúc
+    # paths:
+    #   - '**/*.cml' # Workflow chỉ chạy khi có sự thay đổi ở file kiến trúc
 
 jobs:
   generate-diagrams:
@@ -26,25 +26,56 @@ jobs:
       #     wget https://github.com/ContextMapper/context-mapper-cli/releases/latest/download/context-mapper-cli.tar -O cm-cli.tar
       #     tar -xf cm-cli.tar
       #     chmod +x ./cm
+      # - name: Download Context Mapper CLI
+      #   run: |
+      #     # 1. Gọi GitHub API để lấy link tải file .zip của bản release mới nhất
+      #     DOWNLOAD_URL=$(curl -s https://api.github.com/repos/ContextMapper/context-mapper-cli/releases/latest | jq -r '.assets[] | select(.name | endswith(".zip")) | .browser_download_url' | head -n 1)
+          
+      #     echo "Đang tải Context Mapper từ: $DOWNLOAD_URL"
+      #     wget -q $DOWNLOAD_URL -O cm-cli.zip
+          
+      #     # 2. Giải nén file
+      #     unzip -q cm-cli.zip
+          
+      #     # 3. Tìm thư mục vừa giải nén (vì tên thư mục sẽ chứa số phiên bản, ví dụ: context-mapper-cli-6.12.0)
+      #     EXTRACTED_DIR=$(find . -maxdepth 1 -type d -name "context-mapper-cli-*" | head -n 1)
+          
+      #     # 4. Cấp quyền thực thi cho file chạy 'cm' nằm trong thư mục bin
+      #     chmod +x $EXTRACTED_DIR/bin/cm
+          
+      #     # 5. Tạo một alias/symlink ra ngoài với tên 'cm' để các step sau dễ dàng gọi
+      #     ln -s $PWD/${EXTRACTED_DIR:2}/bin/cm ./cm
       - name: Download Context Mapper CLI
         run: |
-          # 1. Gọi GitHub API để lấy link tải file .zip của bản release mới nhất
-          DOWNLOAD_URL=$(curl -s https://api.github.com/repos/ContextMapper/context-mapper-cli/releases/latest | jq -r '.assets[] | select(.name | endswith(".zip")) | .browser_download_url' | head -n 1)
+          # 1. Gọi API kèm GITHUB_TOKEN để không bị giới hạn Rate Limit
+          API_RESPONSE=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/ContextMapper/context-mapper-cli/releases/latest)
+          
+          # 2. Tìm link tải linh hoạt (hỗ trợ cả .zip, .tar, .tar.gz)
+          DOWNLOAD_URL=$(echo "$API_RESPONSE" | jq -r '.assets[]? | select(.name | test("zip$|tar$|tar.gz$")) | .browser_download_url' | head -n 1)
+          
+          # 3. Kiểm tra an toàn trước khi tải
+          if [ -z "$DOWNLOAD_URL" ] || [ "$DOWNLOAD_URL" == "null" ]; then
+            echo "LỖI NGIÊM TRỌNG: Không tìm thấy link tải!"
+            echo "Phản hồi từ API: $API_RESPONSE"
+            exit 1
+          fi
           
           echo "Đang tải Context Mapper từ: $DOWNLOAD_URL"
-          wget -q $DOWNLOAD_URL -O cm-cli.zip
           
-          # 2. Giải nén file
-          unzip -q cm-cli.zip
+          # 4. Tải và giải nén tùy theo định dạng file
+          if [[ "$DOWNLOAD_URL" == *".zip" ]]; then
+            wget -q "$DOWNLOAD_URL" -O cm-cli.zip
+            unzip -q cm-cli.zip
+          else
+            wget -q "$DOWNLOAD_URL" -O cm-cli.tar
+            tar -xf cm-cli.tar
+          fi
           
-          # 3. Tìm thư mục vừa giải nén (vì tên thư mục sẽ chứa số phiên bản, ví dụ: context-mapper-cli-6.12.0)
+          # 5. Tìm và thiết lập quyền thực thi
           EXTRACTED_DIR=$(find . -maxdepth 1 -type d -name "context-mapper-cli-*" | head -n 1)
           
-          # 4. Cấp quyền thực thi cho file chạy 'cm' nằm trong thư mục bin
-          chmod +x $EXTRACTED_DIR/bin/cm
-          
-          # 5. Tạo một alias/symlink ra ngoài với tên 'cm' để các step sau dễ dàng gọi
-          ln -s $PWD/${EXTRACTED_DIR:2}/bin/cm ./cm
+          chmod +x "$EXTRACTED_DIR/bin/cm"
+          ln -s "$PWD/${EXTRACTED_DIR:2}/bin/cm" ./cm
       - name: Generate Diagrams
         run: |
           mkdir -p docs/diagrams
