@@ -19,52 +19,37 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-      - name: Download Context Mapper CLI  
+      - name: Download Context Mapper CLI   
         run: |
-          echo "Đang tìm kiếm phiên bản Context Mapper CLI khả dụng..."
+          echo "🚀 Đang tải mã nguồn Context Mapper CLI v6.11.0..."
+          wget -q https://github.com/ContextMapper/context-mapper-cli/archive/refs/tags/v6.11.0.tar.gz -O cm-source.tar.gz
           
-          # 1. Lấy dữ liệu từ API
-          API_RESPONSE=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/ContextMapper/context-mapper-cli/releases)
+          echo "📦 Đang giải nén..."
+          tar -xzf cm-source.tar.gz
           
-          # 2. Xử lý jq an toàn
-          DOWNLOAD_URL=$(echo "$API_RESPONSE" | jq -r '
-            if type == "array" then
-              .[] | select(.assets != null and (.assets | length > 0)) | .assets[] | select(.name | endswith(".zip") or endswith(".tar") or endswith(".tar.gz")) | .browser_download_url
-            else
-              empty
-            end
-          ' | head -n 1)
+          echo "⚙️ Đang biên dịch công cụ (bỏ qua test để tăng tốc)..."
+          # Khi giải nén, thư mục tự động sinh ra sẽ có tên là context-mapper-cli-6.11.0
+          cd context-mapper-cli-6.11.0
+          ./gradlew installDist -x test --no-daemon
           
-          # 3. Kịch bản dự phòng (Fallback) không có log gây nhiễu
-          if [ -z "$DOWNLOAD_URL" ]; then
-            echo "⚠️ Cảnh báo: Không tìm thấy file chạy trong các bản Release mới nhất trên GitHub."
-            echo "🔄 Tự động kích hoạt cơ chế Fallback: Sử dụng phiên bản ổn định v6.11.0..."
-            DOWNLOAD_URL="https://github.com/ContextMapper/context-mapper-cli/releases/download/v6.11.0/context-mapper-cli.tar"
-          fi
+          echo "🔗 Đang thiết lập quyền thực thi..."
+          # Tìm file chạy 'cm' vừa được Gradle sinh ra
+          CM_EXEC=$(find build/install -type f -name "cm" | head -n 1)
           
-          echo "✅ Đang tải Context Mapper từ: $DOWNLOAD_URL"
-          
-          # 4. Tải và giải nén
-          if [[ "$DOWNLOAD_URL" == *".zip" ]]; then
-            wget -q "$DOWNLOAD_URL" -O cm-cli.zip
-            unzip -q cm-cli.zip
-          else
-            wget -q "$DOWNLOAD_URL" -O cm-cli.tar
-            tar -xf cm-cli.tar
-          fi
-          
-          # 5. Tìm và thiết lập quyền thực thi
-          EXTRACTED_DIR=$(find . -maxdepth 1 -type d -name "context-mapper-cli-*" | head -n 1)
-          
-          if [ -z "$EXTRACTED_DIR" ]; then
-            echo "LỖI NGIÊM TRỌNG: Quá trình giải nén thất bại hoặc cấu trúc thư mục không đúng."
+          if [ -z "$CM_EXEC" ]; then
+            echo "❌ LỖI: Không tìm thấy file thực thi sau khi biên dịch."
             exit 1
           fi
           
-          chmod +x "$EXTRACTED_DIR/bin/cm"
-          ln -s "$PWD/${EXTRACTED_DIR:2}/bin/cm" ./cm
+          chmod +x "$CM_EXEC"
           
-          echo "🎉 Cài đặt Context Mapper CLI thành công!"
+          # Tạo lối tắt (symlink) ra ngoài thư mục gốc của GitHub Workspace
+          ln -s "$PWD/$CM_EXEC" "$GITHUB_WORKSPACE/cm"
+          
+          echo "✅ Cài đặt thành công!"
+          
+          # Quay lại thư mục gốc để chạy thử
+          cd "$GITHUB_WORKSPACE"
           ./cm --version || echo "Sẵn sàng chạy lệnh cm"
       - name: Generate Diagrams
         run: |
