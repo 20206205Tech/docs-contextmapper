@@ -1,0 +1,16 @@
+digraph "ContextMapGraph" {
+graph ["imagepath"="/tmp/GraphvizJava"]
+"LearnerContext" ["margin"="0.3","orientation"="190","shape"="egg","fontsize"="16","style"="bold","label"="LearnerContext\n","fontname"="sans-serif"]
+"LearningContext" ["margin"="0.3","orientation"="152","shape"="egg","fontsize"="16","style"="bold","label"="LearningContext\n","fontname"="sans-serif"]
+"SubscriptionContext" ["margin"="0.3","orientation"="181","shape"="egg","fontsize"="16","style"="bold","label"="SubscriptionContext\n","fontname"="sans-serif"]
+"LearnerContext" -> "LearningContext" ["headlabel"=<<table cellspacing="0" cellborder="0" border="0">
+<tr><td bgcolor="white">D</td></tr>
+</table>>,"labeldistance"="0","fontsize"="12","taillabel"=<<table cellspacing="0" cellborder="1" border="0">
+<tr><td bgcolor="white" sides="r">U</td><td sides="trbl" bgcolor="white"><font>OHS</font></td></tr>
+</table>>,"style"="bold","label"="                                        ","dir"="none","fontname"="sans-serif"]
+"SubscriptionContext" -> "LearnerContext" ["headlabel"=<<table cellspacing="0" cellborder="1" border="0">
+<tr><td bgcolor="white" sides="r">D</td><td sides="trbl" bgcolor="white"><font>ACL</font></td></tr>
+</table>>,"labeldistance"="0","fontsize"="12","taillabel"=<<table cellspacing="0" cellborder="1" border="0">
+<tr><td bgcolor="white" sides="r">U</td><td sides="trbl" bgcolor="white"><font>OHS, PL</font></td></tr>
+</table>>,"style"="bold","label"="                                        ","dir"="none","fontname"="sans-serif"]
+}
