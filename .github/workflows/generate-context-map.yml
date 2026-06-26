@@ -47,8 +47,8 @@ jobs:
           mkdir -p docs/diagrams
           
           # Sinh sơ đồ PlantUML và Context Map
-          ./cm generate -i system-architecture.cml -g plantuml -o docs/diagrams
-          # ./cm generate -i system-architecture.cml -g context-map -o docs/diagrams
+          # ./cm generate -i system-architecture.cml -g plantuml -o docs/diagrams
+          ./cm generate -i system-architecture.cml -g context-map -o docs/diagrams
 
       - name: Commit and Push changes
         run: |
