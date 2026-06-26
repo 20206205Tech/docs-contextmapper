@@ -19,25 +19,32 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-      - name: Download Context Mapper CLI
+      - name: Download Context Mapper CLI 
         run: |
-          echo "Đang tìm kiếm phiên bản Context Mapper CLI khả dụng mới nhất..."
+          echo "Đang tìm kiếm phiên bản Context Mapper CLI khả dụng..."
           
-          # 1. Gọi API lấy TOÀN BỘ danh sách lịch sử releases (thay vì chỉ lấy bản 'latest' đang bị hỏng)
+          # 1. Lấy dữ liệu từ API
           API_RESPONSE=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/ContextMapper/context-mapper-cli/releases)
           
-          # 2. Dùng bộ lọc jq thông minh:
-          # - [.[] | select(.assets | length > 0)][0]: Duyệt qua các release, bỏ qua những bản không đính kèm file (như v6.12.0), chọn bản hợp lệ đầu tiên (mới nhất).
-          # - Lọc trong bản hợp lệ đó để lấy link .zip hoặc .tar
-          DOWNLOAD_URL=$(echo "$API_RESPONSE" | jq -r '[.[] | select(.assets | type == "array" and length > 0)][0].assets[] | select(.name | test("zip$|tar$|tar.gz$")) | .browser_download_url' | head -n 1)
+          # 2. Xử lý jq an toàn (không dùng index [0] để tránh lỗi null)
+          # Tìm tất cả các release có chứa assets, sau đó lọc lấy link tải file tar/zip đầu tiên (mới nhất)
+          DOWNLOAD_URL=$(echo "$API_RESPONSE" | jq -r '
+            if type == "array" then
+              .[] | select(.assets != null and (.assets | length > 0)) | .assets[] | select(.name | endswith(".zip") or endswith(".tar") or endswith(".tar.gz")) | .browser_download_url
+            else
+              empty
+            end
+          ' | head -n 1)
           
-          # 3. Kiểm tra an toàn
-          if [ -z "$DOWNLOAD_URL" ] || [ "$DOWNLOAD_URL" == "null" ]; then
-            echo "LỖI NGIÊM TRỌNG: Không tìm thấy link tải khả dụng ở bất kỳ phiên bản nào!"
-            exit 1
+          # 3. Kịch bản dự phòng (Fallback) nếu API thất bại hoặc không có file
+          if [ -z "$DOWNLOAD_URL" ]; then
+            echo "⚠️ Cảnh báo: API GitHub không trả về link tải hợp lệ."
+            echo "Log phản hồi API (rút gọn): $(echo "$API_RESPONSE" | head -n 15)"
+            echo "🔄 Tự động kích hoạt cơ chế Fallback: Sử dụng phiên bản ổn định v6.11.0..."
+            DOWNLOAD_URL="https://github.com/ContextMapper/context-mapper-cli/releases/download/v6.11.0/context-mapper-cli.tar"
           fi
           
-          echo "✅ Đã tự động chuyển hướng tới link tải an toàn: $DOWNLOAD_URL"
+          echo "✅ Đang tải Context Mapper từ: $DOWNLOAD_URL"
           
           # 4. Tải và giải nén
           if [[ "$DOWNLOAD_URL" == *".zip" ]]; then
@@ -48,10 +55,19 @@ jobs:
             tar -xf cm-cli.tar
           fi
           
-          # 5. Cấp quyền thực thi và tạo alias
+          # 5. Tìm và thiết lập quyền thực thi
           EXTRACTED_DIR=$(find . -maxdepth 1 -type d -name "context-mapper-cli-*" | head -n 1)
+          
+          if [ -z "$EXTRACTED_DIR" ]; then
+            echo "LỖI NGIÊM TRỌNG: Quá trình giải nén thất bại hoặc cấu trúc thư mục không đúng."
+            exit 1
+          fi
+          
           chmod +x "$EXTRACTED_DIR/bin/cm"
-          ln -s "$PWD/${EXTRACTED_DIR:2}/bin/cm" ./cm 
+          ln -s "$PWD/${EXTRACTED_DIR:2}/bin/cm" ./cm
+          
+          echo "Cài đặt Context Mapper CLI thành công!"
+          ./cm --version || echo "Sẵn sàng chạy lệnh cm"
       - name: Generate Diagrams
         run: |
           mkdir -p docs/diagrams
