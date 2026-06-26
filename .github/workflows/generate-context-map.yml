@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - main
-    # paths:
-    #   - '**/*.cml'
+    paths:
+      - '**/*.cml'
 
 jobs:
   generate-diagrams:
@@ -14,24 +14,43 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # KHÔNG cần setup Java, KHÔNG cần tải file, KHÔNG cần build mã nguồn.
-      - name: Generate Diagrams via Docker
+      # Java là bắt buộc để chạy file thực thi của Context Mapper
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Download and Setup Context Mapper CLI
+        run: |
+          echo "🚀 Tải trực tiếp file bản cứng chính thức từ GitHub..."
+          # Tên file chính xác bắt buộc phải có đuôi -6.11.0
+          wget -q https://github.com/ContextMapper/context-mapper-cli/releases/download/v6.11.0/context-mapper-cli-6.11.0.zip -O cm-cli.zip
+          
+          echo "📦 Giải nén..."
+          unzip -q cm-cli.zip
+          
+          echo "🔗 Thiết lập quyền thực thi..."
+          chmod +x context-mapper-cli-6.11.0/bin/cm
+          
+          # Tạo lối tắt ra bên ngoài thư mục gốc
+          ln -s "$PWD/context-mapper-cli-6.11.0/bin/cm" ./cm
+          
+          echo "✅ Cài đặt thành công!"
+          ./cm --version || echo "Sẵn sàng chạy!"
+
+      - name: Generate Diagrams
         run: |
           mkdir -p docs/diagrams
           
-          # 1. Vẽ sơ đồ PlantUML
-          # Lệnh này gọi container, gắn (mount) thư mục code hiện tại vào /workspace bên trong container
-          docker run --rm -v ${{ github.workspace }}:/workspace contextmapper/context-mapper-cli \
-            generate -i /workspace/architecture.cml -g plantuml -o /workspace/docs/diagrams
-            
-          # 2. Vẽ sơ đồ Context Map đồ họa
-          docker run --rm -v ${{ github.workspace }}:/workspace contextmapper/context-mapper-cli \
-            generate -i /workspace/architecture.cml -g context-map -o /workspace/docs/diagrams
+          # Sinh sơ đồ PlantUML và Context Map
+          ./cm generate -i architecture.cml -g plantuml -o docs/diagrams
+          ./cm generate -i architecture.cml -g context-map -o docs/diagrams
 
       - name: Commit and Push changes
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add docs/diagrams/
-          git commit -m "docs: auto-generate architecture diagrams via Docker" || echo "No changes to commit"
+          git commit -m "docs: auto-generate architecture diagrams" || echo "No changes to commit"
           git push
