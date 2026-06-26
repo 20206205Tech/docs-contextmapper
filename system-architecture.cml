@@ -1,150 +1,101 @@
-// // /* 1. Định nghĩa Context Map tổng thể và các mối quan hệ */
-// // ContextMap OnlineLearningMap {
-// //     contains LearnerContext
-// //     contains LearningContext
-// //     contains SubscriptionContext
+ContextMap DDDAISystemMap {
+    /* =======================================================
+       KHAI BÁO CÁC BOUNDED CONTEXT THEO DOMAIN
+       ======================================================= */
+       
+    /* Miền Cốt Lõi (Core Domain) */
+    contains ConversationContext
+    contains ChatbotAndVoiceContext
 
-// //     /* 
-// //      * Định nghĩa mối quan hệ Upstream (U) và Downstream (D) 
-// //      * SubscriptionContext cung cấp API (OHS, PL) cho LearnerContext.
-// //      * LearnerContext dùng Anti-Corruption Layer (ACL) để không bị phụ thuộc vào model của Subscription.
-// //      */
-// //     SubscriptionContext [U, OHS, PL] -> [D, ACL] LearnerContext
-    
-// //     /* 
-// //      * LearnerContext là Upstream của LearningContext
-// //      */
-// //     LearnerContext [U, OHS] -> [D] LearningContext
-// // }
+    /* Miền Hỗ Trợ (Supporting Domain) */
+    contains DocumentContext
+    contains PersonaContext
+    contains LawContext
 
+    /* Miền Chung (Generic Domain) */
+    contains AuthContext
+    contains SettingContext
+    contains PaymentContext
 
-// // /* 2. Định nghĩa chi tiết các Bounded Context */
-// // BoundedContext LearnerContext {
-// //     domainVisionStatement = "Quản lý định danh học viên (Learner), hồ sơ và tiến trình cá nhân."
-// // }
+    /* Bên thứ ba (Third-party) */
+    contains PaymentGateways
+    contains LiveKitServer
 
-// // BoundedContext LearningContext {
-// //     domainVisionStatement = "Core domain cung cấp kho bài tập, đề thi TOEIC và chấm điểm."
-// // }
+    /* =======================================================
+       MỐI QUAN HỆ GIỮA CÁC BOUNDED CONTEXT
+       ======================================================= */
 
-// // BoundedContext SubscriptionContext {
-// //     domainVisionStatement = "Xử lý thanh toán qua VNPay, MoMo, ZaloPay và quản lý các gói cước theo thời gian."
-// // }
+    /* Auth & Setting */
+    AuthContext [U, OHS, PL] -> [D, ACL] ConversationContext
+    AuthContext [U, OHS, PL] -> [D, ACL] PaymentContext
+    SettingContext [U, OHS, PL] -> [D, CF] ConversationContext
 
-// Vẽ cho tôi 10 Microservice độc lập không cần kết nối
+    /* Payment & Third-party */
+    PaymentGateways [U] -> [D, ACL] PaymentContext
+    PaymentContext [U] -> [D, ACL] ConversationContext {
+        implementationTechnology = "Kafka Event"
+    }
+    PaymentContext [U] -> [D, ACL] DocumentContext {
+        implementationTechnology = "Kafka Event"
+    }
 
+    /* Persona & Chatbot */
+    PersonaContext [U, OHS, PL] -> [D, ACL] ChatbotAndVoiceContext
 
+    /* Conversation & Chatbot */
+    ConversationContext [P] <-> [P] ChatbotAndVoiceContext {
+        implementationTechnology = "gRPC & RabbitMQ"
+    }
+    LiveKitServer [U] -> [D, CF] ChatbotAndVoiceContext
+    ConversationContext [U] -> [D, CF] LiveKitServer
 
-// system-architecture.cml
-
-ContextMap IndependentMicroservicesMap {
-    /* Khai báo các Bounded Context có trong hệ thống */
-    contains UserManagementService
-    contains ProductCatalogService
-    contains OrderProcessingService
-    contains InventoryService
-    contains PaymentGatewayService
-    contains NotificationService
-    contains ReviewAndRatingService
-    contains ShippingService
-    contains CustomerSupportService
-    contains RecommendationService
+    /* Document & Chatbot & Law (Shared Vector DB) */
+    DocumentContext [SK] <-> [SK] ChatbotAndVoiceContext {
+        implementationTechnology = "Vector DB / Milvus"
+    }
+    LawContext [U] -> [D, ACL] ChatbotAndVoiceContext
 }
 
-/* Định nghĩa chi tiết 10 Microservice độc lập */
+/* =======================================================
+   ĐỊNH NGHĨA CHI TIẾT CÁC BOUNDED CONTEXT
+   ======================================================= */
 
-BoundedContext UserManagementService {
-    domainVisionStatement = "Quản lý thông tin, xác thực và phân quyền người dùng."
+BoundedContext ConversationContext {
+    domainVisionStatement = "NestJS Service - Xử lý ngữ cảnh hội thoại chính."
 }
 
-BoundedContext ProductCatalogService {
-    domainVisionStatement = "Quản lý danh mục, mô tả và giá cả của các sản phẩm."
+BoundedContext ChatbotAndVoiceContext {
+    domainVisionStatement = "Python Service - Xử lý AI, Chatbot và Giọng nói."
 }
 
-BoundedContext OrderProcessingService {
-    domainVisionStatement = "Xử lý vòng đời của các đơn đặt hàng."
+BoundedContext DocumentContext {
+    domainVisionStatement = "Docling Service - Quản lý và xử lý tài liệu."
 }
 
-BoundedContext InventoryService {
-    domainVisionStatement = "Theo dõi số lượng hàng tồn kho và các kho bãi."
+BoundedContext PersonaContext {
+    domainVisionStatement = "Python Service - Quản lý Persona của AI."
 }
 
-BoundedContext PaymentGatewayService {
-    domainVisionStatement = "Xử lý các giao dịch thanh toán với đối tác bên thứ ba."
+BoundedContext LawContext {
+    domainVisionStatement = "Data Pipeline - Hệ thống văn bản pháp luật (VBPL) và pháp điển."
 }
 
-BoundedContext NotificationService {
-    domainVisionStatement = "Gửi email, SMS và thông báo đẩy (push notifications)."
+BoundedContext AuthContext {
+    domainVisionStatement = "Supabase - Quản lý xác thực và phân quyền người dùng."
 }
 
-BoundedContext ReviewAndRatingService {
-    domainVisionStatement = "Lưu trữ và hiển thị các đánh giá, bình luận của khách hàng."
+BoundedContext SettingContext {
+    domainVisionStatement = "Neon API - Cấu hình và cài đặt hệ thống."
 }
 
-BoundedContext ShippingService {
-    domainVisionStatement = "Tính toán phí vận chuyển và theo dõi lộ trình giao hàng."
+BoundedContext PaymentContext {
+    domainVisionStatement = "Heroku/NestJS - Xử lý logic thanh toán nội bộ."
 }
 
-BoundedContext CustomerSupportService {
-    domainVisionStatement = "Hỗ trợ khách hàng qua hệ thống ticket và live chat."
+BoundedContext PaymentGateways {
+    domainVisionStatement = "Momo, VNPay, ZaloPay - Cổng thanh toán bên thứ ba."
 }
 
-BoundedContext RecommendationService {
-    domainVisionStatement = "Đề xuất sản phẩm dựa trên hành vi và lịch sử duyệt web."
-}// system-architecture.cml
-
-ContextMap IndependentMicroservicesMap {
-    /* Khai báo các Bounded Context có trong hệ thống */
-    contains UserManagementService
-    contains ProductCatalogService
-    contains OrderProcessingService
-    contains InventoryService
-    contains PaymentGatewayService
-    contains NotificationService
-    contains ReviewAndRatingService
-    contains ShippingService
-    contains CustomerSupportService
-    contains RecommendationService
-}
-
-/* Định nghĩa chi tiết 10 Microservice độc lập */
-
-BoundedContext UserManagementService {
-    domainVisionStatement = "Quản lý thông tin, xác thực và phân quyền người dùng."
-}
-
-BoundedContext ProductCatalogService {
-    domainVisionStatement = "Quản lý danh mục, mô tả và giá cả của các sản phẩm."
-}
-
-BoundedContext OrderProcessingService {
-    domainVisionStatement = "Xử lý vòng đời của các đơn đặt hàng."
-}
-
-BoundedContext InventoryService {
-    domainVisionStatement = "Theo dõi số lượng hàng tồn kho và các kho bãi."
-}
-
-BoundedContext PaymentGatewayService {
-    domainVisionStatement = "Xử lý các giao dịch thanh toán với đối tác bên thứ ba."
-}
-
-BoundedContext NotificationService {
-    domainVisionStatement = "Gửi email, SMS và thông báo đẩy (push notifications)."
-}
-
-BoundedContext ReviewAndRatingService {
-    domainVisionStatement = "Lưu trữ và hiển thị các đánh giá, bình luận của khách hàng."
-}
-
-BoundedContext ShippingService {
-    domainVisionStatement = "Tính toán phí vận chuyển và theo dõi lộ trình giao hàng."
-}
-
-BoundedContext CustomerSupportService {
-    domainVisionStatement = "Hỗ trợ khách hàng qua hệ thống ticket và live chat."
-}
-
-BoundedContext RecommendationService {
-    domainVisionStatement = "Đề xuất sản phẩm dựa trên hành vi và lịch sử duyệt web."
+BoundedContext LiveKitServer {
+    domainVisionStatement = "WebRTC - Máy chủ xử lý stream thời gian thực."
 }
