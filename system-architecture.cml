@@ -56,3 +56,36 @@ ContextMap DDDAISystemMap {
     LawContext [U] -> [D, ACL] ChatbotAndVoiceContext
 }
 
+/* =======================================================
+   ĐỊNH NGHĨA CHI TIẾT CÁC BOUNDED CONTEXT
+   ======================================================= */
+
+BoundedContext ConversationContext {
+}
+
+BoundedContext ChatbotAndVoiceContext {
+}
+
+BoundedContext DocumentContext {
+}
+
+BoundedContext PersonaContext {
+}
+
+BoundedContext LawContext {
+}
+
+BoundedContext AuthContext {
+}
+
+BoundedContext SettingContext {
+}
+
+BoundedContext PaymentContext {
+}
+
+BoundedContext PaymentGateways {
+}
+
+BoundedContext LiveKitServer {
+}
