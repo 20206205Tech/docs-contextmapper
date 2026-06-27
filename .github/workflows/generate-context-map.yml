@@ -24,17 +24,25 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+
+
+      - name: Cache Context Mapper CLI
+        uses: actions/cache@v3
+        with:
+          path: context-mapper-cli-6.12.0
+          key: ${{ runner.os }}-context-mapper-6.12.0
+
       - name: Download and Setup Context Mapper CLI
         run: |
-          echo "🚀 Tải Context Mapper CLI v6.12.0 từ Maven Central..."
-          wget -q https://repo1.maven.org/maven2/org/contextmapper/context-mapper-cli/6.12.0/context-mapper-cli-6.12.0.tar -O cm-cli.tar
-          echo "📦 Giải nén file tar..."
-          tar -xf cm-cli.tar
-          echo "🔗 Thiết lập quyền thực thi..."
+          if [ ! -d "context-mapper-cli-6.12.0" ]; then
+            echo "🚀 Tải Context Mapper CLI..."
+            wget -q https://repo1.maven.org/maven2/org/contextmapper/context-mapper-cli/6.12.0/context-mapper-cli-6.12.0.tar -O cm-cli.tar
+            tar -xf cm-cli.tar
+          else
+            echo "✅ Đã dùng cache cho Context Mapper CLI!"
+          fi
           chmod +x context-mapper-cli-6.12.0/bin/cm
-          ln -s "$PWD/context-mapper-cli-6.12.0/bin/cm" ./cm
-          echo "✅ Cài đặt thành công!"
-          ./cm --version || echo "Sẵn sàng chạy!"
+          ln -sf "$PWD/context-mapper-cli-6.12.0/bin/cm" ./cm
 
       # THÊM BƯỚC NÀY: Cài đặt Graphviz cho máy ảo Ubuntu
       - name: Install Graphviz
