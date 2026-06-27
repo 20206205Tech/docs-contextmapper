@@ -1,3 +1,29 @@
+BoundedContext LiveKitServer {}
+BoundedContext PaymentGateways {}
+
+BoundedContext AuthContext {}
+BoundedContext SettingContext {}
+BoundedContext PaymentContext {}
+
+BoundedContext LawContext {}
+
+BoundedContext DocumentContext {}
+
+BoundedContext PersonaContext {}
+
+BoundedContext ConversationContext {}
+BoundedContext ChatbotAndVoiceContext {}
+
+
+
+
+
+
+
+
+
+
+
 ContextMap DDDAISystemMap {
     /* =======================================================
        KHAI BÁO CÁC BOUNDED CONTEXT THEO DOMAIN
@@ -28,7 +54,7 @@ ContextMap DDDAISystemMap {
     /* Auth & Setting */
     AuthContext [U, OHS, PL] -> [D, ACL] ConversationContext
     AuthContext [U, OHS, PL] -> [D, ACL] PaymentContext
-    SettingContext [U, OHS, PL] -> [D, CF] ConversationContext
+    // SettingContext [U, OHS, PL] -> [D, CF] ConversationContext
 
     /* Payment & Third-party */
     PaymentGateways [U] -> [D, ACL] PaymentContext
@@ -54,38 +80,4 @@ ContextMap DDDAISystemMap {
         implementationTechnology = "Vector DB / Milvus"
     }
     LawContext [U] -> [D, ACL] ChatbotAndVoiceContext
-}
-
-/* =======================================================
-   ĐỊNH NGHĨA CHI TIẾT CÁC BOUNDED CONTEXT
-   ======================================================= */
-
-BoundedContext ConversationContext {
-}
-
-BoundedContext ChatbotAndVoiceContext {
-}
-
-BoundedContext DocumentContext {
-}
-
-BoundedContext PersonaContext {
-}
-
-BoundedContext LawContext {
-}
-
-BoundedContext AuthContext {
-}
-
-BoundedContext SettingContext {
-}
-
-BoundedContext PaymentContext {
-}
-
-BoundedContext PaymentGateways {
-}
-
-BoundedContext LiveKitServer {
 }
