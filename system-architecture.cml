@@ -5,7 +5,9 @@ BoundedContext AuthContext {}
 BoundedContext SettingContext {}
 BoundedContext PaymentContext {}
 
-BoundedContext LawContext {}
+BoundedContext AbcContext {}
+BoundedContext XyzContext {}
+// BoundedContext LawContext {}
 
 BoundedContext DocumentContext {}
 
@@ -36,7 +38,7 @@ ContextMap DDDAISystemMap {
     /* Miền Hỗ Trợ (Supporting Domain) */
     contains DocumentContext
     contains PersonaContext
-    contains LawContext
+    // contains LawContext
 
     /* Miền Chung (Generic Domain) */
     contains AuthContext
@@ -79,5 +81,5 @@ ContextMap DDDAISystemMap {
     DocumentContext [SK] <-> [SK] ChatbotAndVoiceContext {
         implementationTechnology = "Vector DB / Milvus"
     }
-    LawContext [U] -> [D, ACL] ChatbotAndVoiceContext
+    // LawContext [U] -> [D, ACL] ChatbotAndVoiceContext
 }
