@@ -1,13 +1,12 @@
-BoundedContext LiveKitServer {}
 BoundedContext PaymentGateways {}
+BoundedContext LiveKitServer {}
 
 BoundedContext AuthContext {}
 BoundedContext SettingContext {}
 BoundedContext PaymentContext {}
 
-BoundedContext AbcContext {}
-BoundedContext XyzContext {}
-// BoundedContext LawContext {}
+BoundedContext VbplContext {}
+BoundedContext PhapDienContext {}
 
 BoundedContext DocumentContext {}
 
@@ -27,31 +26,22 @@ BoundedContext ChatbotAndVoiceContext {}
 
 
 ContextMap DDDAISystemMap {
-    /* =======================================================
-       KHAI BÁO CÁC BOUNDED CONTEXT THEO DOMAIN
-       ======================================================= */
-       
-    /* Miền Cốt Lõi (Core Domain) */
-    contains ConversationContext
-    contains ChatbotAndVoiceContext
+    contains PaymentGateways
+    contains LiveKitServer
 
-    /* Miền Hỗ Trợ (Supporting Domain) */
-    contains DocumentContext
-    contains PersonaContext
-    // contains LawContext
-
-    /* Miền Chung (Generic Domain) */
     contains AuthContext
     contains SettingContext
     contains PaymentContext
 
-    /* Bên thứ ba (Third-party) */
-    contains PaymentGateways
-    contains LiveKitServer
+    contains VbplContext
+    contains PhapDienContext
 
-    /* =======================================================
-       MỐI QUAN HỆ GIỮA CÁC BOUNDED CONTEXT
-       ======================================================= */
+    contains ConversationContext
+    contains ChatbotAndVoiceContext
+
+    contains DocumentContext
+    contains PersonaContext
+    
 
     /* Auth & Setting */
     AuthContext [U, OHS, PL] -> [D, ACL] ConversationContext
@@ -81,5 +71,7 @@ ContextMap DDDAISystemMap {
     DocumentContext [SK] <-> [SK] ChatbotAndVoiceContext {
         implementationTechnology = "Vector DB / Milvus"
     }
-    // LawContext [U] -> [D, ACL] ChatbotAndVoiceContext
+ 
+    VbplContext [U] -> [D, ACL] ChatbotAndVoiceContext
+    PhapDienContext [U] -> [D, ACL] ChatbotAndVoiceContext
 }
